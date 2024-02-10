@@ -17,7 +17,7 @@ BoundaryValueProblem::BoundaryValueProblem(std::function<double(double)> p,
     h = (x_2 - x_1) / N;
     x = new double[N + 1];
     for(int i = 0; i <= N; i++) {
-        x[i] = (i / N) * h;
+        x[i] = x_1 + (x_2 - x_1) * i / N;
     }
     y = new double[N + 1];
 
@@ -40,12 +40,12 @@ Eigen::Vector2d BoundaryValueProblem::Shoot(Eigen::Vector2d u) {
     y[0] = u(0);
     for(int i = 0; i < N; i++) {
         Eigen::Vector2d k1, k2, k3, k4;
-        k1 = Psi(x[i], u);
-        k2 = Psi(x[i] + 0.5 * h, u + 0.5 * k1);
-        k3 = Psi(x[i] +  0.5 * h, u + 0.5 * k2);
-        k4 = Psi(x[i] + h, u + k3);
+        k1 = h * Psi(x[i], u);
+        k2 = h * Psi(x[i] + 0.5 * h, u + 0.5 * k1);
+        k3 = h * Psi(x[i] + 0.5 * h, u + 0.5 * k2);
+        k4 = h * Psi(x[i] + h, u + k3);
 
-        u += (h / 6) * ( k1 + 2 * k2 + 2 * k3 + k4);
+        u += (k1 + 2 * k2 + 2 * k3 + k4) / 6;
         y[i + 1] = u(0);
     }
 
