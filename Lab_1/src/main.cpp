@@ -22,17 +22,12 @@ int main()
 
     auto res = problem.GetResults(1000);
     ofstream out_shoot;
-    out_shoot.open ("out_shoot.csv");
-    for(int i = 0; i <= N; i++) {
-        out_shoot << res[0][i] << ',';
+    out_shoot.open ("../out_shoot.csv");
+    out_shoot << 'x' << ',' << 'y' << '\n';
+    for(int i = 0; i <= 1000; i++) {
+        out_shoot << res[0][i] << ',' << res[1][i] << '\n';
     }
-    out_shoot << '\n';
-    for(int i = 0; i <= N; i++) {
-        out_shoot << res[1][i] << ',';
-    }
-    out_shoot << '\n';
     out_shoot.close();
-
 
     return 0;
 }
