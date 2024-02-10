@@ -8,10 +8,10 @@
 using namespace std;
 
 //Boundary value problem parameters y'' + py' + qy = f
-double p(double x) {return 0.1;};
+double p(double x) {return 0;};
 double q(double x) {return 1;};
-double f(double x) {return 0;};
-double x_0 = 0, x_1 = 100; int N = 10000;
+double f(double x) {return 0.1*std::cos(0.9*x);};
+double x_0 = 0, x_1 = 100; int N = 100000;
 double a_1 = 1, b_1 = 0, c_1 = 0;
 double a_2 = 1, b_2 = 0, c_2 = 0;
 
