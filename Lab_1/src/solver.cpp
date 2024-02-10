@@ -24,6 +24,11 @@ BoundaryValueProblem::BoundaryValueProblem(std::function<double(double)> p,
     Psi = [p, q, f](double x, Eigen::Vector2d u) { return Eigen::Vector2d(u(1), f(x) - p(x) * u(1) - q(x) * u(0)); };
 }
 
+BoundaryValueProblem::~BoundaryValueProblem() {
+    delete [] x;
+    delete [] y;
+}
+
 double** BoundaryValueProblem::GetResults(int n) {
     auto res = new double*[2];
     res[0] = new double[n + 1];

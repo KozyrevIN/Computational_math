@@ -28,6 +28,7 @@ int main()
         out_shoot << res[0][i] << ',' << res[1][i] << '\n';
     }
     out_shoot.close();
+    delete[] res;
 
     return 0;
 }

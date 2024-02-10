@@ -26,6 +26,8 @@ public:
                          double, double, double,
                          double, double, double);
 
+    BoundaryValueProblem::~BoundaryValueProblem();
+
     //common methods
     double** GetResults(int n);
 
