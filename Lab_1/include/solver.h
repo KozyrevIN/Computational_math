@@ -16,25 +16,39 @@ private:
 
     double a_1, b_1, c_1, a_2, b_2, c_2; //boundary conditions in form a_1*y(x_1) + b_1*y'(x_1) = c_1, a_2*y(x_2) + b_2*y'(x_2) = c_2
 
-    double* x, * y; //arrays to store function calculated on last step
+    double* x, * y; //arrays to store function calculated by the last used method
+
+    std::function<double(double)> exact_solution = 0; //exact solution of this problem for comparasion 
 
 public:
+    //constructor and destructor
     BoundaryValueProblem(std::function<double(double)>,
                          std::function<double(double)>, 
                          std::function<double(double)>, 
                          double, double, int,
                          double, double, double,
                          double, double, double);
+    
+    BoundaryValueProblem(std::function<double(double)>,
+                         std::function<double(double)>, 
+                         std::function<double(double)>, 
+                         double, double, int,
+                         double, double, double,
+                         double, double, double,
+                         std::function<double(double)>);
 
     ~BoundaryValueProblem();
 
     //common methods
-    double** GetResults(int n);
+    std::vector<std::vector<double>> GetResults(int n);
+    double GetError();
+    void CnangeN(int N);
 
     //methods to deal with shooting method
     Eigen::Vector2d Shoot(Eigen::Vector2d);
     Eigen::Vector2d FindInitialVals(double, int);
-    Eigen::Vector2cd FindALinear();
+    Eigen::Vector2d FindInitialValsLinear();
 
-    //methods to deal with ...
+    //methods to deal with Thomas algorithm
+    void Thomas();
 };
