@@ -5,13 +5,11 @@
 
 #include "../include/solver.h"
 
-using namespace std;
-
 //Boundary value problem parameters y'' + py' + qy = f
 double p(double x) { return -1; };
 double q(double x) { return 0; };
 double f(double x) { return 0; };
-double x_1 = 0, x_2 = 1; int N = 1000;
+double x_1 = 0, x_2 = 1; int N = 100;
 double a_1 = 1, b_1 = 0, c_1 = -1;
 double a_2 = -1, b_2 = 1, c_2 = 2;
 
@@ -25,12 +23,11 @@ int main()
     
     //nonlinear initial parameters serch
 
-    //problem.Shoot(Eigen::Vector2d(-1, 1));
-    //std::cout << problem.GetError() << '\n';
+    /*
     auto ivals = problem.FindInitialVals(1e-10, 10000);
     problem.Shoot(ivals);
     auto res = problem.GetResults(1000);
-    ofstream shoot;
+    std::ofstream shoot;
     shoot.open ("../out/shoot.csv");
     shoot << 'x' << ',' << 'y' << '\n';
 
@@ -45,7 +42,7 @@ int main()
 
     problem.FindInitialValsLinear();
     res = problem.GetResults(1000);
-    ofstream shoot_linear;
+    std::ofstream shoot_linear;
     shoot_linear.open ("../out/shoot_linear.csv");
     shoot_linear << 'x' << ',' << 'y' << '\n';
 
@@ -57,10 +54,10 @@ int main()
 
     //getting error for shooting method depending on step size
     
-    ofstream shoot_error;
+    std::ofstream shoot_error;
     shoot_error.open ("../out/shoot_error.csv");
     shoot_error << 'h' << ',' << "error" << '\n';
-    ofstream shoot_linear_error;
+    std::ofstream shoot_linear_error;
     shoot_linear_error.open ("../out/shoot_linear_error.csv");
     shoot_linear_error << 'h' <<',' << "error" << '\n';
 
@@ -81,7 +78,20 @@ int main()
 
     shoot_error.close();
     shoot_linear_error.close();
-    
+    */
+
+    problem.Thomas();
+    auto res = problem.GetResults(100);
+    std::ofstream thomas;
+    thomas.open ("../out/thomas.csv");
+    thomas << 'x' << ',' << 'y' << '\n';
+
+    for(int i = 0; i <= 100; i++) {
+        thomas << res[0][i] << ',' << res[1][i] << '\n';
+    }
+
+    thomas.close();
+
     //testing thomas method
 
     return 0;
