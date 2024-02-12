@@ -60,11 +60,6 @@ void BoundaryValueProblem::Thomas() {
         k_2 = 1;
     }
 
-    for(int i = 0; i <= N + k_1 + k_2; i++) {
-        std::cout << a[i] << ' ' << b[i] << ' ' << c[i] << ' ' << d[i] << '\n';
-    }
-    std::cout << '\n';
-
     int N_new = N + k_1 + k_2;
 
     std::vector<double> P(N_new + 1, 0), Q(N_new + 1, 0);
@@ -72,10 +67,6 @@ void BoundaryValueProblem::Thomas() {
     for(int i = 1; i < N_new; i++) {
         P[i + 1] = c[i] / (b[i] - a[i] * P[i]);
         Q[i + 1] = (a[i] * Q[i] - d[i]) / (b[i] - a[i] * P[i]);
-    }
-
-    for(int i = 0; i <= N_new; i++) {
-        std::cout << P[i] << ' ' << Q[i] << '\n';
     }
 
     std::vector<double> u(N_new + 1, 0);

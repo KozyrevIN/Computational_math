@@ -9,7 +9,7 @@
 double p(double x) { return -1; };
 double q(double x) { return 0; };
 double f(double x) { return 0; };
-double x_1 = 0, x_2 = 1; int N = 100;
+double x_1 = 0, x_2 = 1; int N = 1000;
 double a_1 = 1, b_1 = 0, c_1 = -1;
 double a_2 = -1, b_2 = 1, c_2 = 2;
 
@@ -23,7 +23,6 @@ int main()
     
     //nonlinear initial parameters serch
 
-    /*
     auto ivals = problem.FindInitialVals(1e-10, 10000);
     problem.Shoot(ivals);
     auto res = problem.GetResults(1000);
@@ -36,7 +35,6 @@ int main()
     }
 
     shoot.close();
-
 
     //linear initial patameters search
 
@@ -61,7 +59,7 @@ int main()
     shoot_linear_error.open ("../out/shoot_linear_error.csv");
     shoot_linear_error << 'h' <<',' << "error" << '\n';
 
-    for(int i = 10; i <= 10e3; i += i / 10) {
+    for(int i = 10; i <= 10e4; i += i / 10) {
         problem.CnangeN(i);
         double h = (x_2 - x_1) / i;
 
@@ -78,21 +76,35 @@ int main()
 
     shoot_error.close();
     shoot_linear_error.close();
-    */
 
+    //testing thomas method
     problem.Thomas();
-    auto res = problem.GetResults(100);
+    res = problem.GetResults(1000);
     std::ofstream thomas;
     thomas.open ("../out/thomas.csv");
     thomas << 'x' << ',' << 'y' << '\n';
 
-    for(int i = 0; i <= 100; i++) {
+    for(int i = 0; i <= 1000; i++) {
         thomas << res[0][i] << ',' << res[1][i] << '\n';
     }
 
     thomas.close();
 
-    //testing thomas method
+    //getting error for thomas method depending on step size
+    std::ofstream thomas_error;
+    thomas_error.open ("../out/thomas_error.csv");
+    thomas_error << 'h' << ',' << "error" << '\n';
+
+    for(int i = 10; i <= 10e4; i += i / 10) {
+        problem.CnangeN(i);
+        double h = (x_2 - x_1) / i;
+
+        problem.Thomas();
+        double error = problem.GetError();
+        thomas_error << h << ',' << error << '\n';
+    }
+
+    thomas_error.close();
 
     return 0;
 }
