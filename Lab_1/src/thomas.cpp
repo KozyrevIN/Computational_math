@@ -25,8 +25,8 @@ void BoundaryValueProblem::Thomas() {
         d[0] = f(x[0]);
 
         a.insert(a.begin(), 0);
-        b.insert(b.begin(), -b_1 / (2 * h));
-        c.insert(c.begin(), -a_1);
+        b.insert(b.begin(), b_1 / (2 * h));
+        c.insert(c.begin(), a_1);
         d.insert(d.begin(), c_1);
 
         double mult = b_1 / (2 * h * c[1]);

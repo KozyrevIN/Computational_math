@@ -26,7 +26,7 @@ double FindZero(std::function<double(double)> Func, double l, double r, double f
         std::swap(f_l, f_r);
     }
 
-    while(std::abs(r - l) > eps) {
+    while(std::abs(f_r - f_l) > eps) {
         double m = (l + r) / 2;
         double f_m = Func(m);
         if((f_l > 0) == (f_m > 0)) {
@@ -36,38 +36,43 @@ double FindZero(std::function<double(double)> Func, double l, double r, double f
             r = m; f_r = f_m;
         }
     }
+
     return (l + r) / 2;
 }
 
 Eigen::Vector2d BoundaryValueProblem::FindInitialVals(double eps, int max_iter) {
     std::function<Eigen::Vector2d(double)> Ivals;
-    if(b_1 == 0) {
-        Ivals = [this](double x) { return Eigen::Vector2d(c_1, x);};
+    if(a_1 == 0) {
+        Ivals = [this](double x) { return Eigen::Vector2d(x, c_1 / b_1);};
     }
     else {
-        Ivals = [this](double x) { return Eigen::Vector2d(x, (c_1 - a_1 * x) / b_1); };
+        Ivals = [this](double x) { return Eigen::Vector2d((c_1 - x * b_1) / a_1, x); };
     }
 
-    auto Funk = [this, Ivals](double x){ Eigen::Vector2d fvals = Shoot(Ivals(x));
+    auto Funk = [this, Ivals](double x){ Eigen::Vector2d fvals = Shoot(Ivals(x)); 
                                          return a_2 * fvals(0) + b_2 * fvals(1) - c_2; };
     
     double f_l = Funk(0);
-    double f_r = Funk(1);
     int i = 1;
+    double f_r = Funk(i);
     while(std::abs(i) < std::pow(2, max_iter - 1) && (f_l > 0) == (f_r > 0)) {
-        i = - (i + (i > 0));
+        if(i > 0)
+            i = -i;
+        else
+            i = -i + 1;
         f_r = Funk(i);
     }
+    
     return Ivals(FindZero(Funk, 0, i, f_l, f_r, eps));
 }
 
 Eigen::Vector2d BoundaryValueProblem::FindInitialValsLinear() {
     std::function<Eigen::Vector2d(double)> Ivals;
-    if(b_1 == 0) {
-        Ivals = [this](double x) { return Eigen::Vector2d(c_1, x);};
+    if(a_1 == 0) {
+        Ivals = [this](double x) { return Eigen::Vector2d(x, c_1 / b_1);};
     }
     else {
-        Ivals = [this](double x) { return Eigen::Vector2d(x, (c_1 - a_1 * x) / b_1); };
+        Ivals = [this](double x) { return Eigen::Vector2d((c_1 - x * b_1) / a_1, x); };
     }
 
     auto Funk = [this, Ivals](double x){ Eigen::Vector2d fvals = Shoot(Ivals(x));

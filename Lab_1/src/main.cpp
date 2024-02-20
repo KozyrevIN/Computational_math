@@ -6,14 +6,14 @@
 #include "../include/solver.h"
 
 //Boundary value problem parameters y'' + py' + qy = f
-double p(double x) { return -1; };
-double q(double x) { return 0; };
-double f(double x) { return 0; };
-double x_1 = 0, x_2 = 1; int N = 1000;
-double a_1 = 1, b_1 = 0, c_1 = -1;
-double a_2 = -1, b_2 = 1, c_2 = 2;
+double p(double x) { return 0; };
+double q(double x) { return 4; };
+double f(double x) { return -4 * x; };
+double x_1 = 0, x_2 = 4; int N = 1000;
+double a_1 = 1, b_1 = -1, c_1 = 2;
+double a_2 = 1, b_2 = 0, c_2 = std::cos(8) - 4;
 
-double exact_solution(double x) {return std::exp(x) - 2;}
+double exact_solution(double x) {return std::cos(2 * x) - x;}
 
 int main()
 {
@@ -36,9 +36,11 @@ int main()
 
     shoot.close();
 
+
     //linear initial patameters search
 
-    problem.FindInitialValsLinear();
+    ivals = problem.FindInitialValsLinear();
+    problem.Shoot(ivals);
     res = problem.GetResults(1000);
     std::ofstream shoot_linear;
     shoot_linear.open ("../out/shoot_linear.csv");
@@ -51,7 +53,6 @@ int main()
     shoot_linear.close();
 
     //getting error for shooting method depending on step size
-    
     std::ofstream shoot_error;
     shoot_error.open ("../out/shoot_error.csv");
     shoot_error << 'h' << ',' << "error" << '\n';
@@ -59,11 +60,11 @@ int main()
     shoot_linear_error.open ("../out/shoot_linear_error.csv");
     shoot_linear_error << 'h' <<',' << "error" << '\n';
 
-    for(int i = 10; i <= 10e4; i += i / 10) {
+    for(int i = 10; i <= 1e5; i += i / 10) {
         problem.CnangeN(i);
         double h = (x_2 - x_1) / i;
 
-        ivals = problem.FindInitialVals(1e-15, 1000);
+        ivals = problem.FindInitialVals(1e-14, 1000);
         problem.Shoot(ivals);
         double error = problem.GetError();
         shoot_error << h << ',' << error << '\n';
@@ -76,7 +77,7 @@ int main()
 
     shoot_error.close();
     shoot_linear_error.close();
-
+    
     //testing thomas method
     problem.Thomas();
     res = problem.GetResults(1000);
@@ -95,7 +96,7 @@ int main()
     thomas_error.open ("../out/thomas_error.csv");
     thomas_error << 'h' << ',' << "error" << '\n';
 
-    for(int i = 10; i <= 10e4; i += i / 10) {
+    for(int i = 10; i <= 1e7; i += i / 10) {
         problem.CnangeN(i);
         double h = (x_2 - x_1) / i;
 
