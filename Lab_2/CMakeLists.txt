@@ -13,6 +13,7 @@ set(SOURCES
     src/main.cpp
     src/convection_diffusion_problem.cpp
     src/solver.cpp
+    src/schemes.cpp
 )
 
 add_executable(main ${SOURCES})

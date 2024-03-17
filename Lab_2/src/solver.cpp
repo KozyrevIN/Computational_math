@@ -52,9 +52,10 @@ double Solver::solve(int frames) {
 
     //initializing writing to a file
     std::ofstream output;
+    std::ofstream output_exact;
 
     if (frames != 0) {
-        output.open("../out/animations/" + scheme + "/x_" + std::to_string(rank) + ".csv");
+        output.open("../out/animations/" + scheme + "/" + problem.name + "/x_" + std::to_string(rank) + ".csv");
         for (int i = 0; i < length - 1; i++) {
             output << i << ',';
         }
@@ -65,7 +66,7 @@ double Solver::solve(int frames) {
         output << x[length - 1];
         output.close();
 
-        output.open("../out/animations/" + scheme + "/y_" + std::to_string(rank) + ".csv");
+        output.open("../out/animations/" + scheme + "/" + problem.name + "/y_" + std::to_string(rank) + ".csv");
         for (int i = 0; i < length - 1; i++) {
                 output << i << ',';
             }
@@ -74,6 +75,16 @@ double Solver::solve(int frames) {
                 output << y_cur[i] << ',';
             }
             output << y_cur[length - 1] << '\n';
+
+        output_exact.open("../out/animations/" + scheme + "/" + problem.name + "/y_exact_" + std::to_string(rank) + ".csv");
+        for (int i = 0; i < length - 1; i++) {
+                output_exact << i << ',';
+            }
+            output_exact << length - 1 << '\n';
+        for (int i = 0; i < length - 1; i++) {
+                output_exact << problem.y_exact(x[i], 0) << ',';
+            }
+            output_exact << problem.y_exact(x[length - 1], 0) << '\n';
     }
     //calculating
     for(int j = 1; j <= K; j++) {
@@ -84,9 +95,14 @@ double Solver::solve(int frames) {
                 output << y_cur[i] << ',';
             }
             output << y_cur[length - 1] << '\n';
+
+            for (int i = 0; i < length - 1; i++) {
+                output_exact << problem.y_exact(x[i], j / (K * problem.T)) << ',';
+            }
+            output_exact << problem.y_exact(x[length - 1], j / (K * problem.T)) << '\n';
         }
 
-        error = get_error(j / K * problem.T);
+        error = get_error(j / (K * problem.T));
         if (error > max_error) {
             max_error = error;
         }
@@ -95,6 +111,7 @@ double Solver::solve(int frames) {
     //closing a file
     if (frames != 0) {
         output.close();
+        output_exact.close();
     }
  
     return max_error;
@@ -102,35 +119,4 @@ double Solver::solve(int frames) {
 
 void Solver::make_step(int j) {
     //do nothing
-}
-
-LeftAngleSolver::LeftAngleSolver(int size, int rank, int N, int K, ConvectionDiffusionProblem problem) : 
-                          Solver(size, rank, N, K, problem) {
-    scheme = "left_angle";
-}
-
-void LeftAngleSolver::make_step(int j) {
-    std::swap(y_cur, y_prev);
-
-    y_cur[length - 1] = y_prev[length - 1] - c * (y_prev[length - 1] - y_prev[length - 2]);
-
-    if (rank != size - 1 && j < K) {
-        MPI_Send(&y_cur[length - 1], 1, MPI_DOUBLE, rank + 1, j + 1, MPI_COMM_WORLD);
-    }
-
-    for(int i = 1; i < length - 1; i++) {
-        y_cur[i] = y_prev[i] - c * (y_prev[i] - y_prev[i - 1]);
-    }
-
-    double y_left;
-    if (rank == 0) {
-        y_left = problem.y_0(time_coef * j);
-    } else if (j == 1){
-        y_left = problem.f_0(x[0] - h);
-    } else {
-        MPI_Status status;
-        MPI_Recv(&y_left, 1, MPI_DOUBLE, rank - 1, j, MPI_COMM_WORLD, &status);
-    }
-
-    y_cur[0] = y_prev[0] - c * (y_prev[0] - y_left);
 }

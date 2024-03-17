@@ -33,11 +33,3 @@ class Solver
     //specific for scheme functions
     virtual void make_step(int);
 };
-
-class LeftAngleSolver : public Solver {
-    public:
-    LeftAngleSolver(int, int, int, int, ConvectionDiffusionProblem);
-
-    private:
-    void make_step(int) override;
-};
