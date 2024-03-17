@@ -29,6 +29,12 @@ class Solver
 
     //common functions
     double get_error(double);
+    double get_h();
+    double get_tau();
+    std::string get_scheme();
+    void change_N(int);
+    void change_K(int);
+    void change_N_K(int, int);
     double solve(int);
     //specific for scheme functions
     virtual void make_step(int);

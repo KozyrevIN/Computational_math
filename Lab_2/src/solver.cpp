@@ -2,6 +2,7 @@
 #include <math.h>
 #include <fstream>
 #include <format>
+#include <string>
 #include <mpi.h>
 
 #include "../include/solver.h"
@@ -9,22 +10,7 @@
 Solver::Solver(int size, int rank, int N, int K, ConvectionDiffusionProblem problem):
                size{size}, rank{rank}, N{N}, K{K}, problem{problem} {
 
-    left = (rank * (N + 1)) / size;
-    right = ((rank + 1) * (N + 1)) / size;
-    length = right - left;
-
-    h = problem.L / N;
-    tau = problem.T / K;
-    c = problem.a * tau / h;
-    time_coef = 1 / (K * problem.T);
-
-    y_cur = std::vector(length, 0.0);
-    y_prev = std::vector(length, 0.0);
-
-    x = std::vector(length, 0.0);
-    for (int i = 0; i < length; i++) {
-        x[i] = (problem.L * (i + left)) / N;
-    }
+    change_N_K(N, K);
 }
 
 double Solver::get_error(double t) {
@@ -39,6 +25,48 @@ double Solver::get_error(double t) {
     }
 
     return max_error;
+}
+
+double Solver::get_h() {
+    return h;
+}
+
+double Solver::get_tau() {
+    return tau;
+}
+
+std::string Solver::get_scheme() {
+    return scheme;
+}
+
+void Solver::change_N(int N_new) {
+    N = N_new;
+    left = (rank * (N + 1)) / size;
+    right = ((rank + 1) * (N + 1)) / size;
+    length = right - left;
+
+    h = problem.L / N;
+    c = problem.a * tau / h;
+
+    y_cur = std::vector(length, 0.0);
+    y_prev = std::vector(length, 0.0);
+
+    x = std::vector(length, 0.0);
+    for (int i = 0; i < length; i++) {
+        x[i] = (problem.L * (i + left)) / N;
+    }
+}
+
+void Solver::change_K(int K_new) {
+    K = K_new;
+    tau = problem.T / K;
+    c = problem.a * tau / h;
+    time_coef = 1 / (K * problem.T);
+}
+
+void Solver::change_N_K(int N_new, int K_new) {
+    change_N(N_new);
+    change_K(K_new);
 }
 
 double Solver::solve(int frames) {
@@ -97,12 +125,12 @@ double Solver::solve(int frames) {
             output << y_cur[length - 1] << '\n';
 
             for (int i = 0; i < length - 1; i++) {
-                output_exact << problem.y_exact(x[i], j / (K * problem.T)) << ',';
+                output_exact << problem.y_exact(x[i], time_coef * j) << ',';
             }
-            output_exact << problem.y_exact(x[length - 1], j / (K * problem.T)) << '\n';
+            output_exact << problem.y_exact(x[length - 1], time_coef * j) << '\n';
         }
 
-        error = get_error(j / (K * problem.T));
+        error = get_error(time_coef * j);
         if (error > max_error) {
             max_error = error;
         }

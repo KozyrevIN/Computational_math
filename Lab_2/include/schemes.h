@@ -10,3 +10,20 @@ class LeftAngleSolver : public Solver {
     private:
     void make_step(int) override;
 };
+
+class RightAngleSolver : public Solver {
+    public:
+    RightAngleSolver(int, int, int, int, ConvectionDiffusionProblem);
+
+    private:
+    void make_step(int) override;
+};
+
+class ImplicitAngleSolver : public Solver {
+    public:
+    ImplicitAngleSolver(int, int, int, int, ConvectionDiffusionProblem);
+
+    private:
+    void make_step(int) override;
+};
+
