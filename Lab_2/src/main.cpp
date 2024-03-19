@@ -88,10 +88,13 @@ int main(int argc, char **argv)
 
     auto hat = ConvectionDiffusionProblem(a, L, T, f_0_hat, y_0_hat, name_hat);
 
+    //initial paraneters for solvers
+    int N = 1000; int K = 1000;
+    int deg_min = 5; int deg_max = 10;
+
     { //LeftAngleSolver------------------------------------------------------------------------------------------------------------------
 
         //setting up solvers
-        int N = 800; int K = 800;
         auto rect_solver = LeftAngleSolver(size, rank, N, K, rectangle);
         auto hat_solver = LeftAngleSolver(size, rank, N, K, hat);
 
@@ -100,13 +103,12 @@ int main(int argc, char **argv)
         hat_solver.solve(180);
 
         //getting error
-        plot_errors(hat_solver, rank, 5, 13, false);
+        plot_errors(hat_solver, rank, deg_min, deg_max, false);
     }
 
     { //RightAngleSolver------------------------------------------------------------------------------------------------------------------
 
         //setting up solvers
-        int N = 800; int K = 800;
         auto rect_solver = RightAngleSolver(size, rank, N, K, rectangle);
         auto hat_solver = RightAngleSolver(size, rank, N, K, hat);
 
@@ -118,7 +120,6 @@ int main(int argc, char **argv)
     { //ImplicitAngleSolver------------------------------------------------------------------------------------------------------------------
 
         //setting up solvers
-        int N = 800; int K = 800;
         auto rect_solver = ImplicitAngleSolver(size, rank, N, K, rectangle);
         auto hat_solver = ImplicitAngleSolver(size, rank, N, K, hat);
 
@@ -127,7 +128,29 @@ int main(int argc, char **argv)
         hat_solver.solve(180);
 
         //getting error
-        plot_errors(hat_solver, rank, 5, 13, true);
+        plot_errors(hat_solver, rank, deg_min, deg_max, true);
+    }
+
+    { //LaxSolver------------------------------------------------------------------------------------------------------------------
+
+        //setting up solvers
+        auto rect_solver = LaxSolver(size, rank, N, K, rectangle);
+        auto hat_solver = LaxSolver(size, rank, N, K, hat);
+
+        //testing solver
+        rect_solver.solve(180);
+        hat_solver.solve(180);
+    }
+
+    { //FourPointSolver------------------------------------------------------------------------------------------------------------------
+
+        //setting up solvers
+        auto rect_solver = FourPointSolver(size, rank, N, K, rectangle);
+        auto hat_solver = FourPointSolver(size, rank, N, K, hat);
+
+        //testing solver
+        rect_solver.solve(180);
+        hat_solver.solve(180);
     }
 
     MPI_Finalize();

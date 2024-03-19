@@ -24,6 +24,36 @@ class ImplicitAngleSolver : public Solver {
     ImplicitAngleSolver(int, int, int, int, ConvectionDiffusionProblem);
 
     private:
+    double d;
     void make_step(int) override;
 };
 
+class FourPointSolver : public Solver {
+    public:
+    FourPointSolver(int, int, int, int, ConvectionDiffusionProblem);
+
+    private:
+    double y_cur_left[2];
+    double y_prev_left[2];
+    double d;
+    void make_step(int) override;
+};
+
+class LaxSolver : public Solver {
+    public:
+    LaxSolver(int, int, int, int, ConvectionDiffusionProblem);
+
+    private:
+    double d_1;
+    double d_2;
+    void make_step(int) override;
+};
+
+class LaxWendroffSolver : public Solver {
+    public:
+    LaxWendroffSolver(int, int, int, int, ConvectionDiffusionProblem);
+
+    private:
+    double d;
+    void make_step(int) override;
+};

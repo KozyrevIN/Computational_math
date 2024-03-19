@@ -71,6 +71,8 @@ void Solver::change_N_K(int N_new, int K_new) {
 
 double Solver::solve(int frames) {
 
+    MPI_Barrier(MPI_COMM_WORLD);
+
     double max_error = 0;
     double error = 0;
 
