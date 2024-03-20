@@ -88,14 +88,6 @@ int main(int argc, char **argv)
     auto y_0_hat = []( double t ) { return 0; }; //boundary conditions
 
     auto hat = ConvectionDiffusionProblem(a, L, T, f_0_hat, y_0_hat, name_hat);
-    
-    /*
-    auto f_0_hat = []( double x ) {return std::sin(x); }; //initial values
-    auto y_0_hat = [a]( double t ) { return -std::sin(a * t); }; //boundary conditions
-
-    auto hat = ConvectionDiffusionProblem(a, L, T, f_0_hat, y_0_hat, name_hat);
-    */
-    //setting up cos problem
 
     //initial paraneters for solvers
     int N = 500; int K = 500;
