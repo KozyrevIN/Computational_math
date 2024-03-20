@@ -61,7 +61,7 @@ void Solver::change_K(int K_new) {
     K = K_new;
     tau = problem.T / K;
     c = problem.a * tau / h;
-    time_coef = 1 / (K * problem.T);
+    time_coef = problem.T / K;
 }
 
 void Solver::change_N_K(int N_new, int K_new) {

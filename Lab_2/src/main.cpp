@@ -70,11 +70,11 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     double a = 0.5; //parameter in equation
-    double L = 1; double T = 1; //space and time sizes of study area
+    double L = 4; double T = 4; //space and time sizes of study area
     
     //Setting up the rectangle problem
     std::string name_rect = "rectangle";
-    auto f_0_rect = []( double x ) { if (std::abs(x - 0.25) < 0.1) return 1.0;
+    auto f_0_rect = []( double x ) { if (std::abs(x - 1) < 0.5) return 1.0;
                                      else return 0.0; }; //initial values
     auto y_0_rect = []( double t ) { return 0; }; //boundary conditions
 
@@ -82,15 +82,24 @@ int main(int argc, char **argv)
 
     //setting up hat problem
     std::string name_hat = "hat";
-    auto f_0_hat = []( double x ) { if (std::abs(x - 0.25) < 0.1) return std::exp(- 1 / (1 - 100 * std::pow(x - 0.25, 2)));
+    
+    auto f_0_hat = []( double x ) { if (std::abs(x - 1.25) < 1) return std::exp(- 1 / (1 - std::pow(x - 1.25, 2)));
                                 else return 0.0; }; //initial values
     auto y_0_hat = []( double t ) { return 0; }; //boundary conditions
 
     auto hat = ConvectionDiffusionProblem(a, L, T, f_0_hat, y_0_hat, name_hat);
+    
+    /*
+    auto f_0_hat = []( double x ) {return std::sin(x); }; //initial values
+    auto y_0_hat = [a]( double t ) { return -std::sin(a * t); }; //boundary conditions
+
+    auto hat = ConvectionDiffusionProblem(a, L, T, f_0_hat, y_0_hat, name_hat);
+    */
+    //setting up cos problem
 
     //initial paraneters for solvers
-    int N = 1000; int K = 1000;
-    int deg_min = 5; int deg_max = 10;
+    int N = 500; int K = 500;
+    int deg_min = 5; int deg_max = 18;
 
     { //LeftAngleSolver------------------------------------------------------------------------------------------------------------------
 
@@ -104,6 +113,10 @@ int main(int argc, char **argv)
 
         //getting error
         plot_errors(hat_solver, rank, deg_min, deg_max, false);
+
+        if (rank == 0) {
+            std::cout << "finished left angle\n";
+        }
     }
 
     { //RightAngleSolver------------------------------------------------------------------------------------------------------------------
@@ -115,6 +128,10 @@ int main(int argc, char **argv)
         //testing solver
         rect_solver.solve(180);
         hat_solver.solve(180);
+
+        if (rank == 0) {
+            std::cout << "finished right angle\n";
+        }
     }
 
     { //ImplicitAngleSolver------------------------------------------------------------------------------------------------------------------
@@ -129,17 +146,10 @@ int main(int argc, char **argv)
 
         //getting error
         plot_errors(hat_solver, rank, deg_min, deg_max, true);
-    }
 
-    { //LaxSolver------------------------------------------------------------------------------------------------------------------
-
-        //setting up solvers
-        auto rect_solver = LaxSolver(size, rank, N, K, rectangle);
-        auto hat_solver = LaxSolver(size, rank, N, K, hat);
-
-        //testing solver
-        rect_solver.solve(180);
-        hat_solver.solve(180);
+        if (rank == 0) {
+            std::cout << "finished implicit angle\n";
+        }
     }
 
     { //FourPointSolver------------------------------------------------------------------------------------------------------------------
@@ -151,6 +161,64 @@ int main(int argc, char **argv)
         //testing solver
         rect_solver.solve(180);
         hat_solver.solve(180);
+
+        if (rank == 0) {
+            std::cout << "finished four point solver\n";
+        }
+    }
+
+    { //LaxSolver------------------------------------------------------------------------------------------------------------------
+
+        //setting up solvers
+        auto rect_solver = LaxSolver(size, rank, N, K, rectangle);
+        auto hat_solver = LaxSolver(size, rank, N, K, hat);
+
+        //testing solver
+        rect_solver.solve(180);
+        hat_solver.solve(180);
+
+        //getting errors
+        plot_errors(hat_solver, rank, deg_min, deg_max, false);
+
+        if (rank == 0) {
+            std::cout << "finished lax\n";
+        }
+    }
+
+    { //LaxWendroffSolver------------------------------------------------------------------------------------------------------------------
+
+        //setting up solvers
+        auto rect_solver = LaxWendroffSolver(size, rank, N, K, rectangle);
+        auto hat_solver = LaxWendroffSolver(size, rank, N, K, hat);
+
+        //testing solver
+        rect_solver.solve(180);
+        hat_solver.solve(180);
+
+        //getting errors
+        plot_errors(hat_solver, rank, deg_min, deg_max, false);
+
+        if (rank == 0) {
+            std::cout << "finished lax-wendroff\n";
+        }
+    }
+
+    { //CrossSolver------------------------------------------------------------------------------------------------------------------
+
+        //setting up solvers
+        auto rect_solver = CrossSolver(size, rank, N, K, rectangle);
+        auto hat_solver = CrossSolver(size, rank, N, K, hat);
+
+        //testing solver
+        rect_solver.solve(180);
+        hat_solver.solve(180);
+
+        //getting errors
+        plot_errors(hat_solver, rank, deg_min, deg_max, false);
+
+        if (rank == 0) {
+            std::cout << "finished cross\n";
+        }
     }
 
     MPI_Finalize();

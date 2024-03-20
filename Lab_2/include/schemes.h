@@ -44,8 +44,7 @@ class LaxSolver : public Solver {
     LaxSolver(int, int, int, int, ConvectionDiffusionProblem);
 
     private:
-    double d_1;
-    double d_2;
+    double d_1, d_2;
     void make_step(int) override;
 };
 
@@ -54,6 +53,15 @@ class LaxWendroffSolver : public Solver {
     LaxWendroffSolver(int, int, int, int, ConvectionDiffusionProblem);
 
     private:
-    double d;
+    double d_1, d_2, d_3;
+    void make_step(int) override;
+};
+
+class CrossSolver : public Solver {
+    public:
+    CrossSolver(int, int, int, int, ConvectionDiffusionProblem);
+
+    private:
+    std::vector<double> y_prev_2;
     void make_step(int) override;
 };

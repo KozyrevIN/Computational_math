@@ -80,8 +80,6 @@ void ImplicitAngleSolver::make_step(int j) {
     double y_left;
     if (rank == 0) {
         y_left = problem.y_0(time_coef * (j - 1));
-    } else if (j == 1) {
-        y_left = problem.f_0(x[0] - h);
     } else {
         MPI_Recv(&y_left, 1, MPI_DOUBLE, rank - 1, j, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
@@ -92,7 +90,7 @@ void ImplicitAngleSolver::make_step(int j) {
         y_cur[i] = d * (c * y_cur[i - 1] + y_prev[i]);
     }
 
-    if (rank != size - 1) {
+    if (rank < size - 1) {
         MPI_Send(&y_cur[length - 1], 1, MPI_DOUBLE, rank + 1, j, MPI_COMM_WORLD);
     }
 }
@@ -102,7 +100,7 @@ void ImplicitAngleSolver::make_step(int j) {
 FourPointSolver::FourPointSolver(int size, int rank, int N, int K, ConvectionDiffusionProblem problem) : 
                           Solver(size, rank, N, K, problem) {
     scheme = "four_point";
-    d = 1 - 2 / c;
+    d = 1 + 2 / c;
 }
 
 void FourPointSolver::make_step(int j) {
@@ -111,7 +109,7 @@ void FourPointSolver::make_step(int j) {
 
     if (rank == 0) {
         y_cur[0] = problem.y_0(time_coef * j);
-        y_cur[1] = y_prev[1] - c * (y_prev[1] - y_prev[0 ]);
+        y_cur[1] = y_prev[1] - c * (y_prev[1] - y_prev[0]);
     } else {
         if (j == 1) {
             y_prev_left[0] = problem.f_0(x[0] - 2 * h);
@@ -143,7 +141,7 @@ LaxSolver::LaxSolver(int size, int rank, int N, int K, ConvectionDiffusionProble
 void LaxSolver::make_step(int j) {
     std::swap(y_cur, y_prev);
 
-    double y_left = 0; double y_right = 0;
+    double y_left; double y_right;
 
     if (rank == 0) {
         MPI_Sendrecv(&y_prev[length - 1], 1, MPI_DOUBLE, 1, j - 1, 
@@ -184,52 +182,107 @@ void LaxSolver::make_step(int j) {
 LaxWendroffSolver::LaxWendroffSolver(int size, int rank, int N, int K, ConvectionDiffusionProblem problem) : 
                           Solver(size, rank, N, K, problem) {
     scheme = "lax_wendroff";
-    d = c/2;
+    d_1 = c * (c + 1) / 2;
+    d_2 = 1 - c * c;
+    d_3 = c * (c - 1) / 2;
 }
 
 void LaxWendroffSolver::make_step(int j) {
-    //std::cout << rank << " checkpoint 1\n";
     std::swap(y_cur, y_prev);
-
+    
     double y_left; double y_right;
-    std::cout << y_prev[0] << ' ' << y_prev[length - 1] << '\n';
 
     if (rank == 0) {
         MPI_Sendrecv(&y_prev[length - 1], 1, MPI_DOUBLE, 1, j - 1, 
-                     &y_right, 1, MPI_DOUBLE, 1, j - 1,
+                     &y_right, 1, MPI_DOUBLE, 1, K + j - 1,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     } else if (rank < size - 1) {
         MPI_Sendrecv(&y_prev[length - 1], 1, MPI_DOUBLE, rank + 1, j - 1, 
                      &y_left, 1, MPI_DOUBLE, rank - 1, j - 1,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        MPI_Sendrecv(&y_prev[0], 1, MPI_DOUBLE, rank - 1, j - 1, 
-                     &y_right, 1, MPI_DOUBLE, rank + 1, j - 1,
+        MPI_Sendrecv(&y_prev[0], 1, MPI_DOUBLE, rank - 1, K + j - 1, 
+                     &y_right, 1, MPI_DOUBLE, rank + 1, K + j - 1,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     } else {
-        MPI_Sendrecv(&y_prev[0], 1, MPI_DOUBLE, rank - 1, j - 1, 
+        MPI_Sendrecv(&y_prev[0], 1, MPI_DOUBLE, rank - 1, K + j - 1, 
                      &y_left, 1, MPI_DOUBLE, rank - 1, j - 1,
                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
-    //std::cout << rank << " checkpoint 2\n";
-
     if (rank == 0) {
         y_cur[0] = problem.y_0(time_coef * j);
     } else {
-        y_cur[0] = y_prev[0] - d * (y_prev[1] - y_left);
+        y_cur[0] = d_1 * y_left + d_2 * y_prev[0] + d_3 * y_prev[1];
     }
-    
-    //std::cout << rank << ' ' << j << " checkpoint 3\n";
 
     for(int i = 1; i < length - 1; i++) {
-        y_cur[i] = (1/2) * y_prev[i + 1] - y_prev[i - 1] - d * (y_prev[i + 1] - y_prev[i - 1]);
+        y_cur[i] = d_1 * y_prev[i - 1] + d_2 * y_prev[i] + d_3 * y_prev[i + 1];
     }
-
-    //std::cout << rank << ' ' << j << " checkpoint 4\n";
 
     if (rank == size - 1) {
         y_cur[length - 1] = y_prev[length - 1] - c * (y_prev[length - 1] - y_prev[length - 2]);
     } else {
-        y_cur[length - 1] = y_prev[length - 1] - d * (y_right - y_prev[length - 2]);
+        y_cur[length - 1] = d_1 * y_prev[length - 2] + d_2 * y_prev[length - 1] + d_3 * y_right;
+    }
+}
+
+//Cross solver
+
+CrossSolver::CrossSolver(int size, int rank, int N, int K, ConvectionDiffusionProblem problem) : 
+                          Solver(size, rank, N, K, problem) {
+    scheme = "cross";
+    y_prev_2 = std::vector(length, 0.0);
+}
+
+void CrossSolver::make_step(int j) {
+    std::swap(y_prev, y_prev_2);
+    std::swap(y_cur, y_prev);
+
+    double y_left; double y_right;
+
+    if (j == 1) {
+        if (rank == 0) {
+            y_cur[0] = problem.y_0(time_coef * j);
+        } else {
+            y_cur[0] = y_prev[0] - c * (y_prev[0] - problem.f_0(x[0] - h));
+        }
+        for (int i = 1; i < length; i++) {
+            y_cur[i] = y_prev[i] - c * (y_prev[i] - y_prev[i - 1]);
+        }
+    } else {
+
+        if (rank == 0) {
+            MPI_Sendrecv(&y_prev[length - 1], 1, MPI_DOUBLE, 1, j - 1, 
+                         &y_right, 1, MPI_DOUBLE, 1, K + j - 1,
+                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            
+        } else if (rank < size - 1) {
+            MPI_Sendrecv(&y_prev[length - 1], 1, MPI_DOUBLE, rank + 1, j - 1, 
+                         &y_left, 1, MPI_DOUBLE, rank - 1, j - 1,
+                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Sendrecv(&y_prev[0], 1, MPI_DOUBLE, rank - 1, K + j - 1, 
+                         &y_right, 1, MPI_DOUBLE, rank + 1, K + j - 1,
+                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        } else {
+            MPI_Sendrecv(&y_prev[0], 1, MPI_DOUBLE, rank - 1, K + j - 1, 
+                         &y_left, 1, MPI_DOUBLE, rank - 1, j - 1,
+                         MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+
+        if (rank == 0) {
+            y_cur[0] = problem.y_0(time_coef * j);
+        } else {
+            y_cur[0] = y_prev_2[0] - c * (y_prev[1] - y_left);
+        }
+
+        for(int i = 1; i < length - 1; i++) {
+            y_cur[i] = y_prev_2[i] - c * (y_prev[i + 1] - y_prev[i - 1]);
+        }
+
+        if (rank == size - 1) {
+            y_cur[length - 1] = y_prev[length - 1] - c * (y_prev[length - 1] - y_prev[length - 2]);
+        } else {
+            y_cur[length - 1] = y_prev_2[length - 1] - c * (y_right - y_prev[length - 2]);
+        }
     }
 }
