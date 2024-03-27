@@ -234,6 +234,11 @@ CrossSolver::CrossSolver(int size, int rank, int N, int K, ConvectionDiffusionPr
     y_prev_2 = std::vector(length, 0.0);
 }
 
+void CrossSolver::change_N(int N_new) {
+    Solver::change_N(N_new);
+    y_prev_2 = std::vector(length, 0.0);
+}
+
 void CrossSolver::make_step(int j) {
     std::swap(y_prev, y_prev_2);
     std::swap(y_cur, y_prev);

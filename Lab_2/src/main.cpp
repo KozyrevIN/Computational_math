@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     int N = 500; int K = 500;
     int deg_min = 5; int deg_max = 18;
 
-    { //LeftAngleSolver------------------------------------------------------------------------------------------------------------------
+    /*{ //LeftAngleSolver------------------------------------------------------------------------------------------------------------------
 
         //setting up solvers
         auto rect_solver = LeftAngleSolver(size, rank, N, K, rectangle);
@@ -193,7 +193,7 @@ int main(int argc, char **argv)
         if (rank == 0) {
             std::cout << "finished lax-wendroff\n";
         }
-    }
+    }*/
 
     { //CrossSolver------------------------------------------------------------------------------------------------------------------
 

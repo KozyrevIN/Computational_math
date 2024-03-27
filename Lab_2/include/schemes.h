@@ -60,6 +60,7 @@ class LaxWendroffSolver : public Solver {
 class CrossSolver : public Solver {
     public:
     CrossSolver(int, int, int, int, ConvectionDiffusionProblem);
+    void change_N(int) override;
 
     private:
     std::vector<double> y_prev_2;

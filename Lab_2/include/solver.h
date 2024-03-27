@@ -32,7 +32,7 @@ class Solver
     double get_h();
     double get_tau();
     std::string get_scheme();
-    void change_N(int);
+    virtual void change_N(int);
     void change_K(int);
     void change_N_K(int, int);
     double solve(int);
