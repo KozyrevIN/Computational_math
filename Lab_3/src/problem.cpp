@@ -3,7 +3,10 @@
 #include <iostream>
 
 #include "../include/problem.h"
-#include "../include/progress_bar.h"
+#ifndef progress_bar
+#define progress_bar
+    #include "../include/progress_bar.h"
+#endif
 
 Problem::Problem(double alpha, double L, double T, int n, int k, double sigma,
                  std::function<double(double)> u_x,

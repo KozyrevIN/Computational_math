@@ -2,6 +2,10 @@
 #include <iostream>
 
 #include "../include/problem.h"
+#ifndef progress_bar
+#define progress_bar
+    #include "../include/progress_bar.h"
+#endif
 
 Eigen::Matrix3Xd Problem::generate_system(const Eigen::VectorXd u) {
 
@@ -76,7 +80,7 @@ Eigen::VectorXd Problem::thomas_solve(Eigen::Matrix3Xd system, Eigen::VectorXd d
     return u;
 }
 
-void Problem::solve() {
+void Problem::solve(ProgressBar* bar) {
     Eigen::VectorXd u;
     Eigen::Matrix3Xd system;
     Eigen::VectorXd d;
@@ -84,6 +88,7 @@ void Problem::solve() {
     for (int i = 0; i <= n; i++) {
         numerical_solution(i, 0) = u_x((L * i) / n);
     }
+    bar -> update_and_print_progress(n + 1);
     
     for (int j = 1; j <= k; j++) {
         u = numerical_solution.col(j - 1);
@@ -93,5 +98,6 @@ void Problem::solve() {
             u = thomas_solve(system, d);
         }
         numerical_solution.col(j) = u;
+        bar -> update_and_print_progress(n + 1);
     }
 }

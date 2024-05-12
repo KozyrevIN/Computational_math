@@ -1,6 +1,11 @@
 #include <functional>
 #include <eigen3/Eigen/Dense>
 
+#ifndef progress_bar
+#define progress_bar
+    #include "progress_bar.h"
+#endif
+
 class Problem {
 private:
     double alpha, L, T;
@@ -29,5 +34,5 @@ public:
     double get_error();
     void save_solution(int, int);
 
-    void solve();
+    void solve(ProgressBar*);
 };
