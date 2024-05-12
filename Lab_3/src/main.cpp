@@ -25,30 +25,70 @@ int main(int argc, char **argv)
     /*
     Testing
     */
-    int n_max = 256; int k_max = n_max * n_max;
-    double sigma = 0.5;
+    int n_max = 512; int k_max = n_max * n_max;
 
     //initializing progress bar
-    double total_points = (n_max + 1) * (k_max + 1);
+    double total_points = 0;
     for (int n = 8; n <= n_max; n = n * 2) {
-        total_points += std::pow(n + 1, 3);
+        total_points += 2 * std::pow(n + 1, 3);
     }
+    total_points += 2 * std::pow(64 + 1, 3);
+    total_points += 65 * 4097;
     ProgressBar bar(64, total_points);
 
-    //plotting 1 solution
-    auto problem = Problem(alpha, L, T, n_max, k_max, sigma, u_x, u_t, exact_solution);
+    //initializing problem
+    auto problem = Problem(alpha, L, T, 8, 64, 0, u_x, u_t, exact_solution);
+    
+    //sigma = 0
+    problem.change_n_k(64, 512);
     problem.solve(&bar);
-    problem.save_solution(128, 128);
-    
-    //calculating error
-    
-    for (int n = 8; n <= n_max; n = n * 2) {
+    problem.save_solution(64, 64);
+
+    //calculating errors for sigma = 0
+    std::ofstream output;
+    output.open("../out/sigma_0.0/errors.csv");
+    output << "h,error\n";
+    for (int n = 8; n < n_max; n = n * 2) {
         int k = n * n;
         problem.change_n_k(n, k);
         problem.solve(&bar);
         double error = problem.get_error();
+        output << L / n << ',' << error << '\n';
     }
-    
+    problem.change_n_k(n_max, k_max);
+    problem.solve(&bar);
+    double error = problem.get_error();
+    output << L / n_max << ',' << error;
+    output.close();
+
+    //sigma = 0.5
+    problem.change_sigma(0.5);
+    problem.change_n_k(64, 512);
+    problem.solve(&bar);
+    problem.save_solution(64, 64);
+
+    //calculating errors for sigma = 0.5
+    output.open("../out/sigma_0.5/errors.csv");
+    output << "h,error\n";
+    for (int n = 8; n < n_max; n = n * 2) {
+        int k = n * n;
+        problem.change_n_k(n, k);
+        problem.solve(&bar);
+        double error = problem.get_error();
+        output << L / n << ',' << error << '\n';
+    }
+    problem.change_n_k(n_max, k_max);
+    problem.solve(&bar);
+    error = problem.get_error();
+    output << L / n_max << ',' << error;
+    output.close();
+
+    //sigma = 1
+    problem.change_sigma(1);
+    problem.change_n_k(64, 4096);
+    problem.solve(&bar);
+    problem.save_solution(64, 64);
+
     bar.set_100();
     return 0;
 }

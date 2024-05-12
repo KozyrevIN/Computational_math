@@ -30,6 +30,7 @@ public:
             std::function<double(double, double)>);
 
     void change_n_k(int, int);
+    void change_sigma(double);
 
     double get_error();
     void save_solution(int, int);
