@@ -17,8 +17,8 @@ int main()
 {
     // Задаем параметры задачи и разрешение для солвера
     auto problem = FlatProblem(flat_gaussian, "flat_gaussian");
-    unsigned int n_x = 100; 
-    unsigned int n_y = 20; 
+    unsigned int n_x = 20; 
+    unsigned int n_y = 10; 
     unsigned int k = 10;
     unsigned int frames = 10;
 

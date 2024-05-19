@@ -5,8 +5,9 @@
 #include <vtkDoubleArray.h>
 #include <vtkPoints.h>
 #include <vtkPointData.h>
-#include <vtkXMLStructuredGridWriter.h>
-#include <vtkStructuredGrid.h>
+#include <vtkQuad.h>
+#include <vtkXMLUnstructuredGridWriter.h>
+#include <vtkUnstructuredGrid.h>
 #include <vtkSmartPointer.h>
 
 #ifndef calc_mesh
@@ -45,7 +46,7 @@ void CalcMesh::flatProject(Eigen::MatrixXd& u, Eigen::MatrixXd& v, Eigen::Matrix
 
 void CalcMesh::snapshot(unsigned int snap_number) {
     // Сетка в терминах VTK
-    vtkSmartPointer<vtkStructuredGrid> structuredGrid = vtkSmartPointer<vtkStructuredGrid>::New();
+    vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid = vtkSmartPointer<vtkUnstructuredGrid>::New();
     // Точки сетки в терминах VTK
     vtkSmartPointer<vtkPoints> dumpPoints = vtkSmartPointer<vtkPoints>::New();
 
@@ -73,19 +74,29 @@ void CalcMesh::snapshot(unsigned int snap_number) {
         }
     }
 
-    // Задаём размеры VTK-сетки (в точках, по трём осям)
-    structuredGrid->SetDimensions(n_1, n_2, 1);
     // Грузим точки в сетку
-    structuredGrid->SetPoints(dumpPoints);
+    unstructuredGrid->SetPoints(dumpPoints);
 
     // Присоединяем векторное и скалярное поля к точкам
-    structuredGrid->GetPointData()->AddArray(vel);
-    structuredGrid->GetPointData()->AddArray(h_field);
+    unstructuredGrid->GetPointData()->AddArray(vel);
+    unstructuredGrid->GetPointData()->AddArray(h_field);
+
+    // А теперь пишем, как наши точки объединены в квадраты
+    for(unsigned int i = 0; i < n_1 - 1; i++) {
+        for (unsigned int j = 0; j < n_2 - 1; j++) {
+            auto quad = vtkSmartPointer<vtkQuad>::New();
+            quad->GetPointIds()->SetId(0, n_2 * (i + 1) + j );
+            quad->GetPointIds()->SetId(1, n_2 * (i + 1) + j + 1 );
+            quad->GetPointIds()->SetId(2, n_2 * i + j + 1 );
+            quad->GetPointIds()->SetId(3, n_2 * i + j );
+            unstructuredGrid->InsertNextCell(quad->GetCellType(), quad->GetPointIds());
+        }
+    }
 
     // Создаём снапшот в файле с заданным именем
     std::string fileName = "../out/" + problemName + "_animation/" + std::to_string(snap_number) + ".vts";
-    vtkSmartPointer<vtkXMLStructuredGridWriter> writer = vtkSmartPointer<vtkXMLStructuredGridWriter>::New();
+    vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer = vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
     writer->SetFileName(fileName.c_str());
-    writer->SetInputData(structuredGrid);
+    writer->SetInputData(unstructuredGrid);
     writer->Write();
 }
