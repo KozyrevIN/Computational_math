@@ -1,22 +1,31 @@
 #include <iostream>
 
-#ifndef problems
-    #define problems
+#ifndef problems_header
+    #define problems_header
     #include "../include/problems.h"
 #endif
-#include "../include/solver.h"
-#ifndef calc_mesh
-    #define calc_mesh
+#ifndef solver_header
+    #define solver_header
+    #include "../include/solver.h"
+#endif
+#ifndef calc_mesh_header
+    #define calc_mesh_header
     #include "../include/calc_mesh.h"
 #endif
 
 int main()
 {
-    auto problem = FlatGaussianProblem();
+    // Задаем параметры задачи и разрешение для солвера
+    auto problem = FlatProblem(flat_gaussian, "flat_gaussian");
+    unsigned int n_x = 100; 
+    unsigned int n_y = 20; 
+    unsigned int k = 10;
+    unsigned int frames = 10;
 
-    int n_x = 10; int n_y = 10; int k = 10;
-    auto mesh = CalcMesh(problem, 10, 10);
-    mesh.snapshot(0);
+    // Дальше код работает автоматически
+    auto factory = SolverFactory();
+    auto solver = factory.getSolver(problem, n_x, n_y, k);
+    solver.solve(frames);
 
     return 0;
 }

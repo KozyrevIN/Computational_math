@@ -2,23 +2,18 @@
 #include <cmath>
 #include <string>
 
+double flat_gaussian(double x, double y);
+
 struct FlatProblem {
     const double l_x = 1e6;
     const double l_y = 1e6;
 
     const double T = 1e6;
 
-    virtual double hInital(double x, double y) { return 0.0; };
+    std::function<double(double, double)> hInitial;
 
-    virtual std::string name() { return ""; };
-};
+    std::string name;
 
-struct FlatGaussianProblem : FlatProblem {
-    double hInitial(double x, double y) {
-        double x_0 = l_x / 2; double y_0 = l_y / 2;
-        return 100 + std::exp( -(std::pow(x - x_0, 2) + std::pow(y - y_0, 2)) / (2 * (l_x * l_x + l_y * l_y) / 100));
-    }
-    std::string name() {
-        return "flat_gaussian";
-    }
+    FlatProblem(std::function<double(double, double)> hInitial, std::string name) : hInitial(hInitial), name(name)
+    { }
 };

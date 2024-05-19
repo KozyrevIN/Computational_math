@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-#ifndef problems
-    #define problems
+#ifndef problems_header
+    #define problems_header
     #include "problems.h"
 #endif
 
@@ -32,12 +32,13 @@ private:
     std::string problemName;
 
 public:
-    CalcMesh();
+    // Дефолтный конструктор
+    CalcMesh() = default;
     // Конструктор для плоской задачи
-    CalcMesh(FlatGaussianProblem problem, unsigned n_x, unsigned n_y);
+    CalcMesh(FlatProblem problem, unsigned n_x, unsigned n_y);
 
     // Метод отвечает за проектирование плоского решения на меш
-    void flatProject(Eigen::MatrixXd h, Eigen::MatrixXd u, Eigen::MatrixXd v);
+    void flatProject(Eigen::MatrixXd& h, Eigen::MatrixXd& u, Eigen::MatrixXd& v);
 
     // Метод отвечает за запись текущего состояния сетки в снапшот в формате VTK
     void snapshot(unsigned int snap_number);

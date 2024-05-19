@@ -14,7 +14,7 @@
     #include "../include/calc_mesh.h"
 #endif
 
-CalcMesh::CalcMesh(FlatGaussianProblem problem, unsigned n_x, unsigned n_y) : n_1(n_x), n_2(n_y) {
+CalcMesh::CalcMesh(FlatProblem problem, unsigned n_x, unsigned n_y) : n_1(n_x), n_2(n_y) {
     x = Eigen::MatrixXd(n_1, n_2);
     y = Eigen::MatrixXd(n_1, n_2);
     z = Eigen::MatrixXd(n_1, n_2);
@@ -32,14 +32,15 @@ CalcMesh::CalcMesh(FlatGaussianProblem problem, unsigned n_x, unsigned n_y) : n_
 
     h = Eigen::MatrixXd(n_1, n_2);
 
-    problemName = problem.name();
+    problemName = problem.name;
 }
 
-void CalcMesh::flatProject(Eigen::MatrixXd h, Eigen::MatrixXd u, Eigen::MatrixXd v)
+void CalcMesh::flatProject(Eigen::MatrixXd& u, Eigen::MatrixXd& v, Eigen::MatrixXd& h)
 {
     this -> h = h;
     vx = u;
     vy = v;
+
 }
 
 void CalcMesh::snapshot(unsigned int snap_number) {
