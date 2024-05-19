@@ -27,5 +27,7 @@ private:
 public:
     Solver(Problem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
 
-    solve(unsigned int num_frames);
+    void solve(unsigned int num_frames);
 };
+
+#include "solver.tpp"

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<VTKFile type="StructuredGrid" version="0.1" byte_order="LittleEndian" header_type="UInt32" compressor="vtkZLibDataCompressor">
+  <StructuredGrid WholeExtent="0 9 0 9 0 0">
+    <Piece Extent="0 9 0 9 0 0"                                                       >
+      <PointData>
+        <DataArray type="Float64" Name="velocity" NumberOfComponents="3" format="appended" RangeMin="0"                    RangeMax="0"                    offset="0"                   />
+        <DataArray type="Float64" Name="h" format="appended" RangeMin="0"                    RangeMax="0"                    offset="60"                  />
+      </PointData>
+      <CellData>
+      </CellData>
+      <Points>
+        <DataArray type="Float32" Name="Points" NumberOfComponents="3" format="appended" RangeMin="0"                    RangeMax="1414213.5624"         offset="108"                 />
+      </Points>
+    </Piece>
+  </StructuredGrid>
+  <AppendedData encoding="base64">
+   _AQAAAACAAABgCQAAGQAAAA==eJztwTEBAAAAwqD1T20JT6AAAHgaCWAAAQ==AQAAAACAAAAgAwAAEAAAAA==eJxjYBgFo2AU4AIAAyAAAQ==AQAAAACAAACwBAAAHQEAAA==eJxlk7Ftw1AMRAWkyBKuCC+RIrXFEf4ensNDuM0W2YJ1FnEokncn2I2fgDMfSJ+27fx5fMSNvPbhn9/nLhnw1/PTmTHw5e/bmV/g7Xr3d0/c5rm4vMnj7Qx4vJUx8Hh7Dl3wLtlj7fQmj3ft9B4ZML2ZMTC9xxy62qv3Sx5vcXmTJ9cZ8HgrY+Dx9hy6eOfT/yZ3ln1D9g3ZN2TfkH1D9g3ZN+DVXiSPt7i8yePtDHh+XxkDj7fn0IU726mPvLM572zOO5vzzua8sznvbM47m/POBq/2PXm8xeVNHm9nwOOtjIFnbs+hi30+vWfSZ5c+u/TZpc8ufXbps0ufXfoML76b8T4f3O/YP6P3lQGjH0fGwLhjzaGrfS+4Mg6w
+  </AppendedData>
+</VTKFile>

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <string>
 #include <eigen3/Eigen/Dense>
 
 #include <iostream>
@@ -28,13 +29,16 @@ private:
 
     Eigen::MatrixXd h;
 
+    std::string problemName;
+
 public:
+    CalcMesh();
     // Конструктор для плоской задачи
-    CalcMesh(FlatProblem problem, unsigned n_x, unsigned n_y);
+    CalcMesh(FlatGaussianProblem problem, unsigned n_x, unsigned n_y);
 
     // Метод отвечает за проектирование плоского решения на меш
     void flatProject(Eigen::MatrixXd h, Eigen::MatrixXd u, Eigen::MatrixXd v);
 
     // Метод отвечает за запись текущего состояния сетки в снапшот в формате VTK
-    void snapshot(unsigned int snap_number, std::string problem_name);
+    void snapshot(unsigned int snap_number);
 };

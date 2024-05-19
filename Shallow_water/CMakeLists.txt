@@ -4,14 +4,25 @@ project(Shallow_water)
 
 set(SOURCES 
     src/main.cpp
-    src/solver.cpp
     src/calc_mesh.cpp
     src/progress_bar.cpp
 )
 
 add_executable(main ${SOURCES})
 
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+find_package(VTK
+COMPONENTS
+    CommonCore
+    CommonDataModel
+    IOXML
+)
 
-target_link_libraries(main ${VTK_LIBRARIES})
+target_link_libraries(main
+  PRIVATE
+   ${VTK_LIBRARIES}
+)
+
+vtk_module_autoinit(
+  TARGETS main
+  MODULES ${VTK_LIBRARIES}
+)
