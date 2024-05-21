@@ -8,6 +8,10 @@
     #define calc_mesh_header
     #include "calc_mesh.h"
 #endif
+#ifndef progress_bar_header
+    #define progress_bar_header
+    #include "progress_bar.h"
+#endif
 
 template <typename Problem>
 class Solver 
@@ -22,9 +26,9 @@ protected:
     unsigned int k;
     CalcMesh mesh;
 
-    Eigen::MatrixXd u;
-    Eigen::MatrixXd v;
-    Eigen::MatrixXd h;
+    Eigen::ArrayXXd u;
+    Eigen::ArrayXXd v;
+    Eigen::ArrayXXd h;
 
     virtual void doStep();
     virtual void snapshot(unsigned int frame);
@@ -40,6 +44,10 @@ class FlatSolver : public Solver<FlatProblem>
 friend class SolverFactory;
 
 private:
+    double dt;
+    double dx;
+    double dy;
+
     void doStep();
     void snapshot(unsigned int frame);
 

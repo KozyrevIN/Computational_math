@@ -7,7 +7,13 @@
     #include "../include/progress_bar.h"
 #endif
 
-ProgressBar::ProgressBar(int total_length, double total_points): total_length{total_length}, total_points{total_points} {
+ProgressBar::ProgressBar(int total_length, double total_points): total_length(total_length), total_points(total_points) {
+    updatable = true;
+    points = 0.0;
+    this -> print_progress();
+}
+
+ProgressBar::ProgressBar(double total_points, std::string text): total_length(64), total_points(total_points), text(text) {
     updatable = true;
     points = 0.0;
     this -> print_progress();
@@ -19,7 +25,7 @@ void ProgressBar::update_progress(double new_points) {
 
 void ProgressBar::print_progress() {
     if (updatable) {
-        std::cout << "\r[" << std::string(round(total_length * (points / total_points)), '#') <<   //printing filled part
+        std::cout << text << "\r[" << std::string(round(total_length * (points / total_points)), '#') <<   //printing filled part
                               std::string(total_length - round(total_length * (points / total_points)), '-') <<    //printing empty part
                        "] " << round(100 * (points / total_points)) << "% " <<std::flush;
         if (round(100 * (points / total_points)) == 100) {

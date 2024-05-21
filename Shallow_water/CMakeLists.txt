@@ -6,6 +6,7 @@ set(SOURCES
     src/main.cpp
     src/problems.cpp
     src/calc_mesh.cpp
+    src/progress_bar.cpp
 )
 
 add_executable(main ${SOURCES})
