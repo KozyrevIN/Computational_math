@@ -25,7 +25,7 @@ void ProgressBar::update_progress(double new_points) {
 
 void ProgressBar::print_progress() {
     if (updatable) {
-        std::cout << text << "\r[" << std::string(round(total_length * (points / total_points)), '#') <<   //printing filled part
+        std::cout << "\r" << text << " [" << std::string(round(total_length * (points / total_points)), '#') <<   //printing filled part
                               std::string(total_length - round(total_length * (points / total_points)), '-') <<    //printing empty part
                        "] " << round(100 * (points / total_points)) << "% " <<std::flush;
         if (round(100 * (points / total_points)) == 100) {

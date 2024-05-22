@@ -13,6 +13,28 @@
     #include "progress_bar.h"
 #endif
 
+// Переменные в уравнении мелкой воды
+struct Variables {
+    Eigen::ArrayXXd u;
+    Eigen::ArrayXXd v;
+    Eigen::ArrayXXd h;
+
+    Variables& operator+=(const Variables& var);
+
+    Variables();
+    Variables(unsigned int n_1, unsigned int n_2);
+    Variables(Eigen::ArrayXXd u, Eigen::ArrayXXd v, Eigen::ArrayXXd h);
+};
+
+Variables operator+(const Variables& var_1, const Variables& var_2);
+
+template <typename T>
+Variables operator*(const T& m, const Variables& var);
+
+template <typename T>
+Variables operator/(const Variables& var, const T& div);
+
+// Абстрактный класс солвер
 template <typename Problem>
 class Solver 
 {
@@ -24,13 +46,15 @@ protected:
     unsigned int n_1;
     unsigned int n_2;
     unsigned int k;
+
+    double dt;
+
+    Variables var;
+
     CalcMesh mesh;
 
-    Eigen::ArrayXXd u;
-    Eigen::ArrayXXd v;
-    Eigen::ArrayXXd h;
-
-    virtual void doStep();
+    virtual Variables equation(Variables state);
+    void doStep();
     virtual void snapshot(unsigned int frame);
 
     Solver(Problem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
@@ -39,22 +63,24 @@ public:
     void solve(unsigned int num_frames);
 };
 
+// Солвер для плоской задачи
 class FlatSolver : public Solver<FlatProblem> 
 {
 friend class SolverFactory;
 
 private:
-    double dt;
     double dx;
     double dy;
+    double dt;
 
-    void doStep();
+    Variables equation(Variables state);
     void snapshot(unsigned int frame);
 
 protected:
     FlatSolver(FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
 };
 
+// Фабрика солверов
 class SolverFactory
 {
 public:
@@ -63,3 +89,4 @@ public:
 };
 
 #include "solver.tpp"
+#include "flat_solver.tpp"

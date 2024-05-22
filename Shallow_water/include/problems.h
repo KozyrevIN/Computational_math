@@ -7,10 +7,10 @@ const double G_EARTH = 9.81;
 double flat_gaussian(double x, double y);
 
 struct FlatProblem {
-    const double l_x = 1e5;
-    const double l_y = 1e5;
+    const double l_x = 1;
+    const double l_y = 1;
 
-    const double t = 1e5;
+    const double t = 0.1;
 
     std::function<double(double, double)> hInitial;
 

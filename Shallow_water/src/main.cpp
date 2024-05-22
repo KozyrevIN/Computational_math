@@ -19,8 +19,8 @@ int main()
     auto problem = FlatProblem(flat_gaussian, "flat_gaussian");
     unsigned int n_x = 100; 
     unsigned int n_y = 100; 
-    unsigned int k = 10000;
-    unsigned int frames = 50;
+    unsigned int k = 500;
+    unsigned int frames = 500;
 
     // Дальше код работает автоматически
     auto factory = SolverFactory();
