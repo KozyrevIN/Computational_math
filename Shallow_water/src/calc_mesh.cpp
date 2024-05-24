@@ -3,9 +3,13 @@
     #include "../include/calc_mesh.h"
 #endif
 
-CalcMesh::CalcMesh(const FlatProblem& problem, unsigned int n_x, unsigned int n_y) : n_1(n_x), n_2(n_y)
+CalcMesh::CalcMesh() 
+{ };
+
+CalcMesh::CalcMesh(FlatProblem& problem, unsigned int n_x, unsigned int n_y) : n_1(n_x), n_2(n_y)
 {
     problemName = problem.name;
+    hDefault = problem.hDefault;
     scaleFactor = 1;
 
     points = Eigen::ArrayXX<Eigen::Vector3d>(n_1, n_2);
@@ -27,13 +31,18 @@ CalcMesh::CalcMesh(const FlatProblem& problem, unsigned int n_x, unsigned int n_
     }
 }
 
-CalcMesh::CalcMesh(const SphericalProblem& problem, unsigned int n_lambda, unsigned int n_phi) : n_1(n_lambda), n_2(n_phi)
+CalcMesh::CalcMesh(SphericalProblem& problem, unsigned int n_lambda, unsigned int n_phi) : n_1(n_lambda), n_2(n_phi)
 {
     problemName = problem.name;
+    hDefault = problem.hDefault;
+
+    double lambda; double phi;
     double h_max = 0; double h;
     for (unsigned int j = 0; j < n_2; j++) {
         for (unsigned int i = 0; i < n_1; i++) {
-            h = std::abs(problem.hInitial(- M_PI / 2 + M_PI * (i + 1) / (n_1 + 1), 2 * M_PI * j / n_2));
+            lambda = -M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
+            phi = -M_PI + 2 * M_PI * j / n_2;
+            h = std::abs(problem.hInitial(lambda, phi) - problem.hDefault);
             if (h > h_max) {
                 h_max = h;
             }
@@ -42,7 +51,6 @@ CalcMesh::CalcMesh(const SphericalProblem& problem, unsigned int n_lambda, unsig
     scaleFactor = 0.1 * problem.r / h_max;
 
     points = Eigen::ArrayXX<Eigen::Vector3d>(n_1, n_2);
-    double lambda; double phi;
     for (int j = 0; j < n_2; j++) {
         for (int i = 0; i < n_1; i++) {
             lambda = -M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
@@ -75,9 +83,9 @@ void CalcMesh::snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, cons
     // Обходим все точки нашей расчётной сетки
     for(unsigned int j = 0; j < n_2; j++) {
         for(unsigned int i = 0; i < n_1; i++) {
-            dumpPoints->InsertNextPoint(points(i, j)(0) + scaleFactor * h(i, j) * localUnitVectors(i, j)(0, 2),
-                                        points(i, j)(1) + scaleFactor * h(i, j) * localUnitVectors(i, j)(1, 2),
-                                        points(i, j)(2) + scaleFactor * h(i, j) * localUnitVectors(i, j)(2, 2));
+            dumpPoints->InsertNextPoint(points(i, j)(0) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(0, 2),
+                                        points(i, j)(1) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(1, 2),
+                                        points(i, j)(2) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(2, 2));
         }
     }
 

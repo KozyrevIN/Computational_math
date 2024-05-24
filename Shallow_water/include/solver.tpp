@@ -54,7 +54,7 @@ void Solver<Problem>::doStep() {
 }
 
 template <typename Problem>
-Variables Solver<Problem>::equation(Variables state) {
+Variables Solver<Problem>::equation(const Variables& state) {
     return Variables();
 }
 
@@ -63,13 +63,13 @@ void Solver<Problem>::solve(unsigned int num_frames) {
     ProgressBar bar((double) k, problem.name);
 
     if (num_frames != 0) {
-        mesh.snapshot(u, v, h, 0);
+        mesh.snapshot(var.u, var.v, var.h, 0);
     }
 
     for (unsigned int q = 1; q < k; q++) {
         doStep();
         if (num_frames != 0 and (q % (k / num_frames) == 0)) {
-            mesh.snapshot(u, v, h, q / (k / num_frames));
+            mesh.snapshot(var.u, var.v, var.h, q / (k / num_frames));
         }
         bar.update_and_print_progress(1.0);
     }
@@ -78,10 +78,10 @@ void Solver<Problem>::solve(unsigned int num_frames) {
 }
 
 // Методы абстрактной фабрики
-FlatSolver SolverFactory::getSolver(const FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) {
+FlatSolver SolverFactory::getSolver(FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) {
     return FlatSolver(problem, n_1, n_2, k);
 }
 
-SphericalSolver SolverFactory::getSolver(const SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) {
+SphericalSolver SolverFactory::getSolver(SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) {
     return SphericalSolver(problem, n_1, n_2, k);
 }

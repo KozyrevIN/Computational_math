@@ -56,7 +56,7 @@ protected:
     virtual Variables equation(const Variables& state);
     void doStep();
 
-    Solver(const Problem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
+    Solver(Problem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
 
 public:
     void solve(unsigned int num_frames);
@@ -78,13 +78,13 @@ private:
     Variables equation(const Variables& state);
 
 protected:
-    FlatSolver(const FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
+    FlatSolver(FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
 };
 
 //Солвер для сферической задачи
-Eigen::ArrayXXd derivative_lambda(const Eigen::ArrayXXd& m, double r, double dlambda);
+Eigen::ArrayXXd derivative_e_lambda(const Eigen::ArrayXXd& m, double r, double dlambda);
 
-Eigen::ArrayXXd derivative_phi(const Eigen::ArrayXXd& m, double r, double dphi);
+Eigen::ArrayXXd derivative_e_phi(const Eigen::ArrayXXd& m, double r, double dphi);
 
 class SphericalSolver : public Solver<SphericalProblem> 
 {
@@ -99,7 +99,7 @@ private:
     Variables equation(const Variables& state);
 
 protected:
-    SphericalSolver(const SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
+    SphericalSolver(SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
 };
 
 // Фабрика солверов
@@ -107,8 +107,8 @@ class SolverFactory
 {
 public:
     SolverFactory() = default;
-    FlatSolver getSolver(const FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
-    SphericalSolver getSolver(const SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
+    FlatSolver getSolver(FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
+    SphericalSolver getSolver(SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k);
 };
 
 #include "solver.tpp"

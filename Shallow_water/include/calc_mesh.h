@@ -38,12 +38,18 @@ private:
     // Scale factor для отображения поля h на меше
     double scaleFactor;
 
+    // Дефолтная высота воды
+    double hDefault;
+
 public:
+    // Пустой конструктор
+    CalcMesh();
+
     // Конструктор для плоской задачи
-    CalcMesh(const FlatProblem& problem, unsigned int n_x, unsigned int n_y);
+    CalcMesh(FlatProblem& problem, unsigned int n_x, unsigned int n_y);
 
     // Конструктор для сферической задачи
-    CalcMesh(const SphericalProblem& problem, unsigned int n_lambda, unsigned int n_phi);
+    CalcMesh(SphericalProblem& problem, unsigned int n_lambda, unsigned int n_phi);
 
     // Метод отвечает за проектирование текущего состояния сетки в снапшот в формате VTK
     void snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, const Eigen::ArrayXXd& h, unsigned int snap_number);

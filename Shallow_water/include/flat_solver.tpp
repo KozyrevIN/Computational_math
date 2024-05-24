@@ -38,7 +38,7 @@ Eigen::ArrayXXd derivative_y(const Eigen::ArrayXXd& m, double dy) {
 }
 
 // Методы класса FlatSolver
-FlatSolver::FlatSolver(const FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) : Solver(problem, n_1, n_2, k) {
+FlatSolver::FlatSolver(FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) : Solver(problem, n_1, n_2, k) {
     for (unsigned int j = 0; j < n_2; j++) {
         for (unsigned int i = 0; i < n_1; i++) {
             var.h(i, j) = problem.hInitial((problem.l_x * i) / (n_1 - 1), (problem.l_y * j) / (n_2 - 1));
