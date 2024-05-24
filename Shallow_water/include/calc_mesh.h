@@ -22,23 +22,29 @@
 class CalcMesh
 {
 private:
-    // 3D-сетка из расчётных точек
+    // Размеры сетки
     unsigned int n_1;
     unsigned int n_2;
 
+    // Название задачи, для которой строится сетка
     std::string problemName;
 
-    vtkSmartPointer<vtkUnstructuredGrid> unstructuredGrid;
+    // Координаты точек сетки
+    Eigen::ArrayXX<Eigen::Vector3d> points;
+
+    // Локальные орты
+    Eigen::ArrayXX<Eigen::Matrix3d> localUnitVectors;
+
+    // Scale factor для отображения поля h на меше
+    double scaleFactor;
 
 public:
-    // Дефолтный конструктор
-    CalcMesh() = default;
     // Конструктор для плоской задачи
-    CalcMesh(FlatProblem problem, unsigned n_x, unsigned n_y);
+    CalcMesh(const FlatProblem& problem, unsigned int n_x, unsigned int n_y);
 
-    // Метод отвечает за проектирование плоского решения на меш
-    void flatProject(Eigen::ArrayXXd& h, Eigen::ArrayXXd& u, Eigen::ArrayXXd& v);
+    // Конструктор для сферической задачи
+    CalcMesh(const SphericalProblem& problem, unsigned int n_lambda, unsigned int n_phi);
 
-    // Метод отвечает за запись текущего состояния сетки в снапшот в формате VTK
-    void snapshot(unsigned int snap_number);
+    // Метод отвечает за проектирование текущего состояния сетки в снапшот в формате VTK
+    void snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, const Eigen::ArrayXXd& h, unsigned int snap_number);
 };

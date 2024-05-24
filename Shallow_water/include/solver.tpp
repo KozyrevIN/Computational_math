@@ -7,7 +7,7 @@ Variables::Variables(unsigned int n_1, unsigned int n_2) {
 
 Variables::Variables() = default;
 
-Variables::Variables(Eigen::ArrayXXd u, Eigen::ArrayXXd v, Eigen::ArrayXXd h) : u(u), v(v), h(h)
+Variables::Variables(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, const Eigen::ArrayXXd& h) : u(u), v(v), h(h)
 { }
 
 Variables operator+(const Variables& var_1, const Variables& var_2) {
@@ -59,22 +59,17 @@ Variables Solver<Problem>::equation(Variables state) {
 }
 
 template <typename Problem>
-void Solver<Problem>::snapshot(unsigned int frame) {
-    //do nothing
-}
-
-template <typename Problem>
 void Solver<Problem>::solve(unsigned int num_frames) {
     ProgressBar bar((double) k, problem.name);
 
     if (num_frames != 0) {
-        snapshot(0);
+        mesh.snapshot(u, v, h, 0);
     }
 
     for (unsigned int q = 1; q < k; q++) {
         doStep();
         if (num_frames != 0 and (q % (k / num_frames) == 0)) {
-            snapshot(q / (k / num_frames));
+            mesh.snapshot(u, v, h, q / (k / num_frames));
         }
         bar.update_and_print_progress(1.0);
     }
@@ -83,6 +78,10 @@ void Solver<Problem>::solve(unsigned int num_frames) {
 }
 
 // Методы абстрактной фабрики
-FlatSolver SolverFactory::getSolver(FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) {
+FlatSolver SolverFactory::getSolver(const FlatProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) {
     return FlatSolver(problem, n_1, n_2, k);
+}
+
+SphericalSolver SolverFactory::getSolver(const SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) {
+    return SphericalSolver(problem, n_1, n_2, k);
 }
