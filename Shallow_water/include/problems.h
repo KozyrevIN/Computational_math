@@ -24,9 +24,9 @@ struct FlatProblem {
 double spherical_gaussian(double lambda, double phi);
 
 struct SphericalProblem {
-    const double r = 1;
-    const double omega;
-    const double t = 0.1;
+    const double r = 6.371e6;
+    const double omega = 7.292e-5;
+    const double t = 8.64e4;
 
     const std::function<double(double, double)>  hInitial;
 
