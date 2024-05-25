@@ -16,11 +16,11 @@
 int main()
 {
     // Задаем параметры задачи и разрешение для солвера
-    auto problem = FlatProblem(flat_gaussian, "flat_gaussian");
-    unsigned int n_x = 50; 
-    unsigned int n_y = 50; 
-    unsigned int k = 500;
-    unsigned int frames = 0;
+    auto problem = SphericalProblem(spherical_gaussian, "spherical_gaussian_60fps");
+    unsigned int n_x = 500; 
+    unsigned int n_y = 500; 
+    unsigned int k = 5000;
+    unsigned int frames = 500;
 
     // Дальше код работает автоматически
     auto factory = SolverFactory();

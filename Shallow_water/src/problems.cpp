@@ -18,14 +18,13 @@ double FlatProblem::hInitial(double x, double y) {
 
 //Сферическая задача
 double spherical_gaussian(double lambda, double phi) {
-    double delta_lambda = lambda - M_PI / 4;
+    double lambda_0 = M_PI / 4;
     double phi_0 = 0;
-    double a = std::pow(std::sin(phi - phi_0 / 2.0), 2) + std::cos(phi) * std::cos(phi_0) * std::pow(std::sin(delta_lambda / 2.0), 2);
-    double c = 2 * std::atan2(std::pow(a, 0.5), std::pow(1 - a, 0.5));
-    return std::exp( -std::pow(c, 2));
+    double angle = std::acos(std::sin(lambda) * std::sin(lambda_0) + std::cos(lambda) * std::cos(lambda_0) * std::cos(phi - phi_0));
+    return std::exp( - 2 * std::pow(angle, 2));
 }
 
-SphericalProblem::SphericalProblem(std::function<double(double, double)> hInitial, std::string name) : hFunction(hFunction), name(name) 
+SphericalProblem::SphericalProblem(std::function<double(double, double)> hFunction, std::string name) : hFunction(hFunction), name(name) 
 { }
 
 double SphericalProblem::hInitial(double lambda, double phi) {

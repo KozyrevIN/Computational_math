@@ -5,17 +5,17 @@ Eigen::ArrayXXd derivative_e_lambda(const Eigen::ArrayXXd& m, double r, double d
 
     Eigen::ArrayXXd derivative(n_1, n_2);
 
-    derivative.row(0) = (m.row(1) - m.row(0)) / (r * dlambda);
-    derivative.row(1) = (m.row(2) - m.row(0)) / (2 * r * dlambda);
+    derivative.row(0) = (m.row(1) - m.row(0)) / dlambda;
+    derivative.row(1) = (m.row(2) - m.row(0)) / (2 * dlambda);
 
     for (int i = 2; i < n_1 - 2; i++) {
-        derivative.row(i) = (8 * (m.row(i + 1) -  m.row(i - 1)) - (m.row(i + 2) - m.row(i - 2))) / (12 * r * dlambda);
+        derivative.row(i) = (8 * (m.row(i + 1) -  m.row(i - 1)) - (m.row(i + 2) - m.row(i - 2))) / (12 * dlambda);
     }
 
-    derivative.row(n_1 - 2) = (m.row(n_1 - 1) - m.row(n_1 - 3)) / (2 * r * dlambda);
-    derivative.row(n_1 - 1) = (m.row(n_1 - 1) - m.row(n_1 - 2)) / (r * dlambda);
+    derivative.row(n_1 - 2) = (m.row(n_1 - 1) - m.row(n_1 - 3)) / (2 * dlambda);
+    derivative.row(n_1 - 1) = (m.row(n_1 - 1) - m.row(n_1 - 2)) / dlambda;
 
-    return derivative;
+    return derivative / r;
 }
 
 Eigen::ArrayXXd derivative_e_phi(const Eigen::ArrayXXd& m, double r, double dphi) {
@@ -24,27 +24,30 @@ Eigen::ArrayXXd derivative_e_phi(const Eigen::ArrayXXd& m, double r, double dphi
 
     Eigen::ArrayXXd derivative(n_1, n_2);
 
-    derivative.col(0) = (8 * (m.col(1) -  m.col(n_2 - 1)) - (m.col(2) - m.col(n_2 - 2))) / (12 * r * dphi);
+    derivative.col(0) = (8 * (m.col(1) -  m.col(n_2 - 1)) - (m.col(2) - m.col(n_2 - 2))) / (12 * dphi);
     derivative.col(1) = (8 * (m.col(2) -  m.col(0)) - (m.col(3) - m.col(n_2 - 1))) / (12 * dphi);
 
     double lambda;
     for (int i = 2; i < n_2 - 2; i++) {
         lambda = - M_PI / 2 + M_PI * (i + 1) / (r + 1);
-        derivative.col(i) = (8 * (m.col(i + 1) -  m.col(i - 1)) - (m.col(i - 2) - m.col(i - 2))) / (12 * r * dphi);
+        derivative.col(i) = (8 * (m.col(i + 1) -  m.col(i - 1)) - (m.col(i - 2) - m.col(i - 2))) / (12 * dphi);
     }
 
     derivative.col(n_2 - 2) = (8 * (m.col(n_2 - 1) -  m.col(n_2 - 3)) - (m.col(0) - m.col(n_2 - 4))) / (12 * dphi);
     derivative.col(n_2 - 1) = (8 * (m.col(0) -  m.col(n_2 - 2)) - (m.col(1) - m.col(n_2 - 3))) / (12 * dphi);
 
-    for (int i = 0; i < r; i++) {
+    for (int i = 0; i < n_1; i++) {
         lambda = - M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
         derivative.row(i) *= cos(lambda);
     }
-    return derivative;
+
+    return derivative / r;
 }
 
 // Методы класса SphericalSolver
 SphericalSolver::SphericalSolver(SphericalProblem& problem, unsigned int n_1, unsigned int n_2, unsigned int k) : Solver(problem, n_1, n_2, k) {
+    f = Eigen::ArrayXXd(n_1, n_2);
+
     double lambda; double phi;
     for (unsigned int j = 0; j < n_2; j++) {
         for (unsigned int i = 0; i < n_1; i++) {

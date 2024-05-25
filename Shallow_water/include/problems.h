@@ -30,7 +30,7 @@ struct SphericalProblem {
     const double omega = 7.292e-5;
     const double hDefault = 100;
 
-    const double t = 8.64e4;
+    const double t = 30 * 8.64e4;
 
     const std::function<double(double, double)>  hFunction;
     double hInitial(double lambda, double phi);

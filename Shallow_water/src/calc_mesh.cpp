@@ -36,28 +36,29 @@ CalcMesh::CalcMesh(SphericalProblem& problem, unsigned int n_lambda, unsigned in
     problemName = problem.name;
     hDefault = problem.hDefault;
 
+
     double lambda; double phi;
     double h_max = 0; double h;
     for (unsigned int j = 0; j < n_2; j++) {
         for (unsigned int i = 0; i < n_1; i++) {
-            lambda = -M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
-            phi = -M_PI + 2 * M_PI * j / n_2;
+            lambda = - M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
+            phi = - M_PI + 2 * M_PI * j / n_2;
             h = std::abs(problem.hInitial(lambda, phi) - problem.hDefault);
             if (h > h_max) {
                 h_max = h;
             }
         }
     }
-    scaleFactor = 0.1 * problem.r / h_max;
+    scaleFactor = 0 * 0.1 * problem.r / h_max;
 
     points = Eigen::ArrayXX<Eigen::Vector3d>(n_1, n_2);
     for (int j = 0; j < n_2; j++) {
         for (int i = 0; i < n_1; i++) {
-            lambda = -M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
-            phi = -M_PI + 2 * M_PI * j / n_2;
-            points(i, j) <<  problem.r * std::cos(lambda) * std::cos(phi),
-                            -problem.r * std::cos(lambda) * std::sin(phi),
-                             problem.r * std::sin(lambda);
+            lambda = - M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
+            phi = - M_PI + 2 * M_PI * j / n_2;
+            points(i, j) <<   problem.r * std::cos(lambda) * std::cos(phi),
+                            - problem.r * std::cos(lambda) * std::sin(phi),
+                              problem.r * std::sin(lambda);
         }
     }
 
@@ -81,8 +82,8 @@ void CalcMesh::snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, cons
     vtkSmartPointer<vtkPoints> dumpPoints = vtkSmartPointer<vtkPoints>::New();
 
     // Обходим все точки нашей расчётной сетки
-    for(unsigned int j = 0; j < n_2; j++) {
-        for(unsigned int i = 0; i < n_1; i++) {
+    for(unsigned int i = 0; i < n_1; i++) {
+        for(unsigned int j = 0; j < n_2; j++) {
             dumpPoints->InsertNextPoint(points(i, j)(0) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(0, 2),
                                         points(i, j)(1) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(1, 2),
                                         points(i, j)(2) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(2, 2));
@@ -104,6 +105,15 @@ void CalcMesh::snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, cons
         }
     }
 
+    for(unsigned int i = 0; i < n_1 - 1; i++) {
+        auto quad = vtkSmartPointer<vtkQuad>::New();
+        quad->GetPointIds()->SetId(0, n_2 * (i + 1) + n_2 - 1);
+        quad->GetPointIds()->SetId(1, n_2 * (i + 1));
+        quad->GetPointIds()->SetId(2, n_2 * i);
+        quad->GetPointIds()->SetId(3, n_2 * i + n_2 - 1);
+        unstructuredGrid->InsertNextCell(quad->GetCellType(), quad->GetPointIds());
+    }
+
     // Скалярное поле на точках сетки
     auto h_field = vtkSmartPointer<vtkDoubleArray>::New();
     h_field -> SetName("h");
@@ -119,7 +129,7 @@ void CalcMesh::snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, cons
             // Добавляем значение векторного поля в этой точке
             double _vel[3] = {u(i, j) * localUnitVectors(i, j)(0, 0) + v(i, j) * localUnitVectors(i, j)(0, 1),
                               u(i, j) * localUnitVectors(i, j)(1, 0) + v(i, j) * localUnitVectors(i, j)(1, 1),
-                              u(i, j) * localUnitVectors(i, j)(2, 0) + v(i, j) * localUnitVectors(i, j)(2, 1),};
+                              u(i, j) * localUnitVectors(i, j)(2, 0) + v(i, j) * localUnitVectors(i, j)(2, 1)};
             vel -> InsertNextTuple(_vel);
 
             // И значение скалярного поля тоже
