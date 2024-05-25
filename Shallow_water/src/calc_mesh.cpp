@@ -12,7 +12,7 @@ CalcMesh::CalcMesh(FlatProblem& problem, unsigned int n_x, unsigned int n_y) : n
     hDefault = problem.hDefault;
     scaleFactor = 1;
 
-    points = Eigen::ArrayXX<Eigen::Vector3d>(n_1, n_2);
+    points = Eigen::ArrayXX<Eigen::Vector3f>(n_1, n_2);
     for (int j = 0; j < n_2; j++) {
         for (int i = 0; i < n_1; i++) {
             points(i, j) << (problem.l_x * i) / (n_1 - 1),
@@ -21,7 +21,7 @@ CalcMesh::CalcMesh(FlatProblem& problem, unsigned int n_x, unsigned int n_y) : n
         }
     }
 
-    localUnitVectors = Eigen::ArrayXX<Eigen::Matrix3d>(n_1, n_2);
+    localUnitVectors = Eigen::ArrayXX<Eigen::Matrix3f>(n_1, n_2);
     for (int j = 0; j < n_2; j++) {
         for (int i = 0; i < n_1; i++) {
             localUnitVectors(i, j) << 1, 0, 0,
@@ -36,8 +36,9 @@ CalcMesh::CalcMesh(SphericalProblem& problem, unsigned int n_lambda, unsigned in
     problemName = problem.name;
     hDefault = problem.hDefault;
 
-
     double lambda; double phi;
+
+    /*
     double h_max = 0; double h;
     for (unsigned int j = 0; j < n_2; j++) {
         for (unsigned int i = 0; i < n_1; i++) {
@@ -49,9 +50,11 @@ CalcMesh::CalcMesh(SphericalProblem& problem, unsigned int n_lambda, unsigned in
             }
         }
     }
-    scaleFactor = 0 * 0.1 * problem.r / h_max;
+    scaleFactor = 0.1 * problem.r / h_max;
+    */
+   scaleFactor = 0;
 
-    points = Eigen::ArrayXX<Eigen::Vector3d>(n_1, n_2);
+    points = Eigen::ArrayXX<Eigen::Vector3f>(n_1, n_2);
     for (int j = 0; j < n_2; j++) {
         for (int i = 0; i < n_1; i++) {
             lambda = - M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
@@ -62,7 +65,7 @@ CalcMesh::CalcMesh(SphericalProblem& problem, unsigned int n_lambda, unsigned in
         }
     }
 
-    localUnitVectors = Eigen::ArrayXX<Eigen::Matrix3d>(n_1, n_2);
+    localUnitVectors = Eigen::ArrayXX<Eigen::Matrix3f>(n_1, n_2);
     for (int j = 0; j < n_2; j++) {
         for (int i = 0; i < n_1; i++) {
             lambda = -M_PI / 2 + M_PI * (i + 1) / (n_1 + 1);
@@ -84,9 +87,9 @@ void CalcMesh::snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, cons
     // Обходим все точки нашей расчётной сетки
     for(unsigned int i = 0; i < n_1; i++) {
         for(unsigned int j = 0; j < n_2; j++) {
-            dumpPoints->InsertNextPoint(points(i, j)(0) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(0, 2),
-                                        points(i, j)(1) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(1, 2),
-                                        points(i, j)(2) + scaleFactor * (h(i, j) - hDefault) * localUnitVectors(i, j)(2, 2));
+            dumpPoints->InsertNextPoint(points(i, j)(0) + scaleFactor * ((float)h(i, j) - hDefault) * localUnitVectors(i, j)(0, 2),
+                                        points(i, j)(1) + scaleFactor * ((float)h(i, j) - hDefault) * localUnitVectors(i, j)(1, 2),
+                                        points(i, j)(2) + scaleFactor * ((float)h(i, j) - hDefault) * localUnitVectors(i, j)(2, 2));
         }
     }
 
@@ -115,11 +118,11 @@ void CalcMesh::snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, cons
     }
 
     // Скалярное поле на точках сетки
-    auto h_field = vtkSmartPointer<vtkDoubleArray>::New();
+    auto h_field = vtkSmartPointer<vtkFloatArray>::New();
     h_field -> SetName("h");
 
     // Векторное поле на точках сетки
-    auto vel = vtkSmartPointer<vtkDoubleArray>::New();
+    auto vel = vtkSmartPointer<vtkFloatArray>::New();
     vel->SetName("velocity");
     vel->SetNumberOfComponents(3);
 
@@ -127,13 +130,13 @@ void CalcMesh::snapshot(const Eigen::ArrayXXd& u, const Eigen::ArrayXXd& v, cons
     for(unsigned int i = 0; i < n_1; i++) {
         for(unsigned int j = 0; j < n_2; j++) {
             // Добавляем значение векторного поля в этой точке
-            double _vel[3] = {u(i, j) * localUnitVectors(i, j)(0, 0) + v(i, j) * localUnitVectors(i, j)(0, 1),
-                              u(i, j) * localUnitVectors(i, j)(1, 0) + v(i, j) * localUnitVectors(i, j)(1, 1),
-                              u(i, j) * localUnitVectors(i, j)(2, 0) + v(i, j) * localUnitVectors(i, j)(2, 1)};
+            double _vel[3] = {(float)u(i, j) * localUnitVectors(i, j)(0, 0) + (float)v(i, j) * localUnitVectors(i, j)(0, 1),
+                              (float)u(i, j) * localUnitVectors(i, j)(1, 0) + (float)v(i, j) * localUnitVectors(i, j)(1, 1),
+                              (float)u(i, j) * localUnitVectors(i, j)(2, 0) + (float)v(i, j) * localUnitVectors(i, j)(2, 1)};
             vel -> InsertNextTuple(_vel);
 
             // И значение скалярного поля тоже
-            h_field -> InsertNextValue(h(i, j));
+            h_field -> InsertNextValue((float)h(i, j));
         }
     }
 

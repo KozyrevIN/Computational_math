@@ -28,7 +28,7 @@ SphericalProblem::SphericalProblem(std::function<double(double, double)> hFuncti
 { }
 
 double SphericalProblem::hInitial(double lambda, double phi) {
-    return hDefault + hFunction(lambda, phi);
+    return hDefault + 250 * hFunction(lambda, phi);
 }
 
 

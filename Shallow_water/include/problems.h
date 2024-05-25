@@ -28,9 +28,9 @@ double spherical_gaussian(double lambda, double phi);
 struct SphericalProblem {
     const double r = 6.371e6;
     const double omega = 7.292e-5;
-    const double hDefault = 100;
+    const double hDefault = 1e4;
 
-    const double t = 30 * 8.64e4;
+    const double t = 7 * 8.64e4;
 
     const std::function<double(double, double)>  hFunction;
     double hInitial(double lambda, double phi);

@@ -5,7 +5,7 @@
 #include <eigen3/Eigen/Dense>
 #include <iostream>
 
-#include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
 #include <vtkPoints.h>
 #include <vtkPointData.h>
 #include <vtkQuad.h>
@@ -30,10 +30,10 @@ private:
     std::string problemName;
 
     // Координаты точек сетки
-    Eigen::ArrayXX<Eigen::Vector3d> points;
+    Eigen::ArrayXX<Eigen::Vector3f> points;
 
     // Локальные орты
-    Eigen::ArrayXX<Eigen::Matrix3d> localUnitVectors;
+    Eigen::ArrayXX<Eigen::Matrix3f> localUnitVectors;
 
     // Scale factor для отображения поля h на меше
     double scaleFactor;

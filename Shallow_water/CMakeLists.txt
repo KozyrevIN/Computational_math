@@ -9,6 +9,7 @@ set(SOURCES
     src/progress_bar.cpp
 )
 
+set(CMAKE_CXX_FLAGS "-O3")
 add_executable(main ${SOURCES})
 
 find_package(VTK
